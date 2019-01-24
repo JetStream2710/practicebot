@@ -9,29 +9,28 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public class DriveForwardSeconds extends Command {
 
-	private long startingTime;
-	private int seconds;
-	private long time; 
+	private long targetTime;
+	private long millis;
+    private long time; 
+    private double maxSpeed;
 
-	public DriveForwardSeconds(long startingTime, int seconds) {
-        this.startingTime = startingTime;
-		this.seconds = seconds;
+	public DriveForwardSeconds(long millis, double maxSpeed) {
+        this.millis = millis/2;
+        this.maxSpeed = maxSpeed;
+        requires(Robot.drivetrain);
     }
 
     protected void initialize() {
-    	requires(Robot.drivetrain);
+        targetTime = System.currentTimeMillis() + millis;
     }
 
     protected void execute() {
-    	Robot.drivetrain.driveForward();
+    	Robot.drivetrain.arcadeDrive(maxSpeed, 0.0);
     }
 
     protected boolean isFinished() {
-    	time = System.currentTimeMillis();
-        if (time - startingTime >= seconds*1000)
-        	return true;
-        else
-        	return false;
+        time = System.currentTimeMillis();
+        return (time >= targetTime);
     }
 
     protected void end() {

@@ -76,23 +76,25 @@ public class PixyI2CDriver {
 		}
 	}
 
-	public void lineTracking() {
-		System.out.println("calling lineTracking");
+	public PixyLine lineTracking() {
+//		System.out.println("calling lineTracking 2");
 		try {
-			for (byte b : LINE_TRACKING) {
-				System.out.println((int) b + " :: " + convertUnsigned(b));
-			}
-			byte[] dataReceived = new byte[15];
+//			for (byte b : LINE_TRACKING) {
+//				System.out.println((int) b + " :: " + convertUnsigned(b));
+//			}
+			byte[] dataReceived = new byte[14];
 			pixy.transaction(LINE_TRACKING, LINE_TRACKING.length, dataReceived, dataReceived.length);
-			System.out.println("lineTracking data received");
-			int i=0;
-			for (byte b : dataReceived) {
-				System.out.println(i+": "+(int) b + " :: " + convertUnsigned(b));
-				i++;
-			}
+//			System.out.println("lineTracking data received");
+//			int i=0;
+//			for (byte b : dataReceived) {
+//				System.out.println(i+": "+(int) b + " :: " + convertUnsigned(b));
+//				i++;
+//			}
+			return new PixyLine(dataReceived);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}	
 }

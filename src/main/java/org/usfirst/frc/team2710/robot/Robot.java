@@ -2,7 +2,8 @@ package org.usfirst.frc.team2710.robot;
 
 import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
-import org.usfirst.frc.team2710.util.PixyI2CTest;
+import org.usfirst.frc.team2710.util.FollowLine;
+import org.usfirst.frc.team2710.util.PixyVision;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -16,12 +17,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.usfirst.frc.team2710.robot.commands.Autonomous;
+import org.usfirst.frc.team2710.robot.commands.CargoAuto3;
+import org.usfirst.frc.team2710.robot.commands.CargoAuto4;
+import org.usfirst.frc.team2710.robot.commands.CargoAuto5;
+import org.usfirst.frc.team2710.robot.commands.RightRocketAuto;
 import org.usfirst.frc.team2710.robot.commands.DriveCommand;
 import org.usfirst.frc.team2710.robot.commands.DriveForwardSeconds;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftDown;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftUp;
 import org.usfirst.frc.team2710.robot.commands.IntakeClaw;
-import org.usfirst.frc.team2710.robot.commands.OuttakeClaw; 
+import org.usfirst.frc.team2710.robot.commands.OuttakeClaw;
+import org.usfirst.frc.team2710.robot.commands.RightRocketAuto; 
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -36,14 +42,14 @@ public class Robot extends TimedRobot {
 	public static Claw claw;
 	public static OI oi;
 	public static AHRS ahrs = new AHRS(SPI.Port.kMXP);
-	public static PixyI2CTest pixy = new PixyI2CTest();
+	public static PixyVision pixy = new PixyVision();
+	public static FollowLine followLine = new FollowLine();
 
 	public static long startingTime;
 	public static boolean isAuto;
 	
 	public static DigitalInput limitSwitch;
 	
-	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
 	/**
@@ -52,21 +58,24 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		SmartDashboard.putString("Event Log: ", "Robot Init");
 		drivetrain = new Drivetrain();
 		claw = new Claw();
 		oi = new OI();
 		limitSwitch = new DigitalInput(9);
+		pixy.start();
 		
 		m_chooser.addDefault("Default Auto", new DriveCommand());
 		
 		//chooser.addObject("My Auto", new MyAutoCommand());
-		SmartDashboard.putData("Auto mode", m_chooser);
-		
+//		Telemetry.addEvent("Robot Init");
+
+
 //		CameraServer.getInstance().startAutomaticCapture();
 
 		//drivetrain = new Drivetrain();
 		
-		auto = new Autonomous();
+//		auto = new RightRocketAuto();
 	}
 	
 	public void robotPeriodic() {
@@ -100,10 +109,10 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autonomousCommand = m_chooser.getSelected();
+		Telemetry.addEvent("Autonomous Init");
+		SmartDashboard.putString("Event Log: ", "Autonomous Init");
 		startingTime = System.currentTimeMillis();
-		System.out.println("Autonomous Init called");
-		auto.start();
+		//auto.start();
 		isAuto = true;
 		
 		/*
@@ -120,10 +129,14 @@ public class Robot extends TimedRobot {
 		}
 		*/
 		
-		new DriveForwardSeconds(startingTime, 1);
-		
-		
-//		drivetrain.turn(ahrs, 180);
+		//new Autonomous();
+		//new CargoAuto3();
+		//System.out.println("cargo auto 3");
+//		new CargoAuto4();
+//		new CargoAuto5();
+//		new RightRocketAuto();
+
+		//		drivetrain.turn(ahrs, 180);
 //		drivetrain.driveForward(startingTime, 1);
 
 	}
@@ -143,13 +156,12 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		Telemetry.addEvent("Teleop Init");
+		SmartDashboard.putString("Event Log: ", "Teleop Init");
 		// This makes sure that the autonomous stops running when
 		// teleop starts running. If you want the autonomous to
 		// continue until interrupted by another command, remove
 		// this line or comment it out.
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.cancel();
-		}
 		isAuto = false;
 		ahrs.zeroYaw();
 	}
@@ -160,7 +172,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		pixy.testpixy();
+		//System.out.println(pixy.getLatestLine());
+
+		followLine.execute(pixy.getLatestLine(), drivetrain);
 
 
 /*		System.out.println("Angle: " + ahrs.getAngle() + " Yaw: " + ahrs.getYaw() +
