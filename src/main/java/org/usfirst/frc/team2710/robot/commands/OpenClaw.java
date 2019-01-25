@@ -8,11 +8,13 @@ public class OpenClaw extends Command {
 
 	public OpenClaw() {
 		requires(Robot.claw);
+		System.out.println("open claw constructor");
 	}
 	
 	@Override
 	protected void initialize() {
 		Robot.claw.openClaw();
+		System.out.println("open claw init");
 	}
 	
 	// Called repeatedly when this Command is scheduled to run
@@ -22,6 +24,7 @@ public class OpenClaw extends Command {
 	
 	@Override
 	protected boolean isFinished() {
+		System.out.println("open claw finished");
 		return true;
 	}
 	

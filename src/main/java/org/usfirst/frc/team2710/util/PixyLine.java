@@ -9,23 +9,39 @@ public class PixyLine {
     }
 
     public int getLowerX(){
+        if(shouldFlip()){
+            return (int) bytes[10];
+        }
         return (int) bytes[8];
     }
 
     public int getLowerY(){
+        if(shouldFlip()){
+            return (int) bytes[11];
+        }
         return (int) bytes[9];
     }
 
     public int getUpperX(){
+        if(shouldFlip()){
+            return (int) bytes[8];
+        }
         return (int) bytes[10];
     }
 
     public int getUpperY(){
+        if(shouldFlip()){
+            return (int) bytes[9];
+        }
         return (int) bytes[11];
     }
 
     public int getId(){
         return (int) bytes[12];
+    }
+
+    public boolean shouldFlip(){
+        return (int) bytes[9] < (int) bytes[11];
     }
 
     @Override

@@ -2,7 +2,6 @@ package org.usfirst.frc.team2710.robot;
 
 import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
-import org.usfirst.frc.team2710.util.FollowLine;
 import org.usfirst.frc.team2710.util.PixyVision;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -26,8 +25,10 @@ import org.usfirst.frc.team2710.robot.commands.DriveForwardSeconds;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftDown;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftUp;
 import org.usfirst.frc.team2710.robot.commands.IntakeClaw;
+import org.usfirst.frc.team2710.robot.commands.OpenClaw;
 import org.usfirst.frc.team2710.robot.commands.OuttakeClaw;
-import org.usfirst.frc.team2710.robot.commands.RightRocketAuto; 
+import org.usfirst.frc.team2710.robot.commands.RightRocketAuto;
+import org.usfirst.frc.team2710.robot.commands.FollowLine;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,7 +44,6 @@ public class Robot extends TimedRobot {
 	public static OI oi;
 	public static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 	public static PixyVision pixy = new PixyVision();
-	public static FollowLine followLine = new FollowLine();
 
 	public static long startingTime;
 	public static boolean isAuto;
@@ -51,6 +51,8 @@ public class Robot extends TimedRobot {
 	public static DigitalInput limitSwitch;
 	
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+	private FollowLine followLineCmd;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -109,11 +111,13 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		Telemetry.addEvent("Autonomous Init");
-		SmartDashboard.putString("Event Log: ", "Autonomous Init");
+//		Telemetry.addEvent("Autonomous Init");
+//		SmartDashboard.putString("Event Log: ", "Autonomous Init");
 		startingTime = System.currentTimeMillis();
 		//auto.start();
 		isAuto = true;
+		followLineCmd = new FollowLine();
+		followLineCmd.start();
 		
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -147,7 +151,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
-		
 		//System.out.println("hello");
 		
 		//drivetrain.driveForward(1);
@@ -173,9 +176,6 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		//System.out.println(pixy.getLatestLine());
-
-		followLine.execute(pixy.getLatestLine(), drivetrain);
-
 
 /*		System.out.println("Angle: " + ahrs.getAngle() + " Yaw: " + ahrs.getYaw() +
 				" Pitch: " + ahrs.getPitch() + " Roll: " + ahrs.getRoll());
