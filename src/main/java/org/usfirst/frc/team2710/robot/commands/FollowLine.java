@@ -7,10 +7,15 @@ import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team2710.util.PixyLine;
 
 public class FollowLine extends Command {
+    private double minTurnSpeed = 0.45;
+    private double maxTurnSpeed = 0.3;
+    private double minDriveSpeed;
+    private double maxDriveSpeed;
+
     private final int MIDDLE_X = 40;
     
     public FollowLine() {
-//        requires(Robot.drivetrain);
+        requires(Robot.drivetrain);
         System.out.println("Follow line constructor");
     }
 
@@ -31,6 +36,7 @@ public class FollowLine extends Command {
      *     down and to the right.
      */
     public double getAngleFromVertical(PixyLine line){
+
         int lowerX = line.getLowerX();
         int upperX = line.getUpperX();
         int lowerY = line.getLowerY();
@@ -54,8 +60,19 @@ public class FollowLine extends Command {
          " highX=" + line.getUpperX() + " highY=" + line.getUpperY());
 
         //offset
-        double turnMagnitude = 0.5;
+      /*double turnMagnitude = Math.abs(angleFromVertical/60.0);
+        if(turnMagnitude > maxTurnSpeed)
+        {
+            turnMagnitude = maxTurnSpeed;
+        }
+        else if(turnMagnitude < minTurnSpeed)
+        {
+            turnMagnitude = minTurnSpeed;
+        }
+        */
+        double turnMagnitude = 0.4;
         double speedValue = 0.5;
+
         double turnValue = turnMagnitude;
         if(offsetFromMiddle<0){
             turnValue = -1 * turnMagnitude;
@@ -78,6 +95,7 @@ public class FollowLine extends Command {
         } else {
             System.out.println("Move towards offset: offset=" + offsetFromMiddle + " turn=" + turnValue);
         }
+        System.out.println("    speed: " + speedValue + "  turn: " + turnValue);
         Robot.drivetrain.arcadeDrive(speedValue, turnValue);
 //        Robot.drivetrain.arcadeDrive(0, 0);
     }

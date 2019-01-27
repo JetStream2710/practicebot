@@ -15,7 +15,7 @@ public class DriveForwardSeconds extends Command {
     private double maxSpeed;
 
 	public DriveForwardSeconds(long millis, double maxSpeed) {
-        this.millis = millis/2;
+        this.millis = millis;
         this.maxSpeed = maxSpeed;
         requires(Robot.drivetrain);
     }

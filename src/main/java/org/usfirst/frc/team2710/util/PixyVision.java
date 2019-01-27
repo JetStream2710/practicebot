@@ -6,18 +6,22 @@ public class PixyVision {
     private boolean isRunning;
     private PixyLine latestLine;
 
+    private PixyVisionThread thread;
+
     public PixyLine getLatestLine(){
         return latestLine;
     }
 
     public void start(){
-        PixyVisionThread thread = new PixyVisionThread();
+        thread = new PixyVisionThread();
         isRunning = true;
         thread.start();
     }
 
     public void stop(){
         isRunning = false;
+        thread.stop();
+        thread = null;
     }
 
     public final class PixyVisionThread extends Thread{
@@ -28,6 +32,7 @@ public class PixyVision {
             while(isRunning){
                 PixyLine line = driver.lineTracking();
                 if(line != null && isValid(line)){
+                    //System.out.println("... acquiring: " + line);
                     latestLine = line;
                 }
                 try{

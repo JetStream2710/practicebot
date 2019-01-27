@@ -20,7 +20,9 @@ import org.usfirst.frc.team2710.robot.commands.CargoAuto3;
 import org.usfirst.frc.team2710.robot.commands.CargoAuto4;
 import org.usfirst.frc.team2710.robot.commands.CargoAuto5;
 import org.usfirst.frc.team2710.robot.commands.RightRocketAuto;
+import org.usfirst.frc.team2710.robot.commands.TurnDegrees;
 import org.usfirst.frc.team2710.robot.commands.DriveCommand;
+import org.usfirst.frc.team2710.robot.commands.DriveForward;
 import org.usfirst.frc.team2710.robot.commands.DriveForwardSeconds;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftDown;
 import org.usfirst.frc.team2710.robot.commands.DriveShiftUp;
@@ -67,7 +69,6 @@ public class Robot extends TimedRobot {
 		limitSwitch = new DigitalInput(9);
 		pixy.start();
 		
-		m_chooser.addDefault("Default Auto", new DriveCommand());
 		
 		//chooser.addObject("My Auto", new MyAutoCommand());
 //		Telemetry.addEvent("Robot Init");
@@ -113,7 +114,7 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 //		Telemetry.addEvent("Autonomous Init");
 //		SmartDashboard.putString("Event Log: ", "Autonomous Init");
-		startingTime = System.currentTimeMillis();
+//		startingTime = System.currentTimeMillis();
 		//auto.start();
 		isAuto = true;
 		followLineCmd = new FollowLine();

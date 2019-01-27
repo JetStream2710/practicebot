@@ -5,61 +5,42 @@ import org.usfirst.frc.team2710.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
- */
+	 * Turns the robot a requested amount of degrees
+	 * 
+	 * @param degrees
+	 *            Degrees to turn; positive is right, negative is left
+	 * @param maxTurnSpeed
+	 *            The fastest speed you want the robot to turn at; postive value
+	 */
 public class TurnDegrees extends Command {
 
-//	private double degrees; //degrees to turn
-//	private double intialAngle;
-//	private double currentAngle;
 	private double targetAngle;
 	private double degrees;
-
-	// Only for debugging, remove later
-	private double initialAngle;
-	private long timeFinished;
-	private boolean reachedEnd;
+	private int turnLeft; // 1 is true, -1 is false
 
 	private double maxTurnSpeed;
 	private double minTurnSpeed;
-
-	private final double kP = 0.03, //proportional constant; tune later
-						 kI = 0; //integral constant; implement if necessary
     
     public TurnDegrees(double degrees, double maxTurnSpeed)
     {
     	requires(Robot.drivetrain);
-    	this.degrees = degrees; // Negative values are left; Positive values are right
+    	this.degrees = degrees;
     	this.maxTurnSpeed = maxTurnSpeed ;
 	}
 
-    // Called just before this Command runs the first time
-    protected void initialize() {
-//		Robot.ahrs.zeroYaw();
-		initialAngle = Robot.ahrs.getAngle();
-		targetAngle = initialAngle + degrees; 
-		System.out.println("initial angle: " + initialAngle);
-		System.out.println("target angle: " + targetAngle);
+	protected void initialize() 
+	{
+		turnLeft = (degrees < 0.0) ? 1 : -1;
+		targetAngle = Robot.ahrs.getAngle() + degrees; 
 		minTurnSpeed = (Math.abs(degrees) <= 15) ? 0.6 : 0.4;
-//		intialAngle = Robot.ahrs.getAngle();
-//		currentAngle= intialAngle;
-//    	targetAngle = intialAngle + degrees;
     }
 
-    // Called repeatedly when this Command is scheduled to run
-    protected void execute() {
-		if (reachedEnd) {
-			Robot.drivetrain.arcadeDrive(0.0, 0.0);
-			return;
-		}
+	protected void execute() 
+	{
 		double currentAngle=Robot.ahrs.getAngle();
-		// positive error means we want to turn right; negative is left
 		double errorDegrees = targetAngle - currentAngle;
+
 		double turnSpeed = Math.abs(errorDegrees/60.0);
-		System.out.println("turnspeed: " + turnSpeed);
-		//System.out.println("errorDegrees: " + errorDegrees);
-		//System.out.println("currentAngle: " + currentAngle);
-		//System.out.println("targetAngle: " + targetAngle);
 		if(turnSpeed < minTurnSpeed)
 		{
 			turnSpeed = minTurnSpeed;
@@ -68,37 +49,13 @@ public class TurnDegrees extends Command {
 		{
 			turnSpeed = maxTurnSpeed;
 		}
-		if (errorDegrees>0.0) 
-		{
-			turnSpeed*=-1;
-		}
-		System.out.println("final turn speed: " + turnSpeed);
-    	Robot.drivetrain.arcadeDrive(0.0, turnSpeed);
-		//System.out.println("curent:"+currentAngle);
-		//System.out.println("target:"+targetAngle);
+
+    	Robot.drivetrain.arcadeDrive(0.0, turnSpeed*turnLeft);
+
     }
 
-    // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-//    	return (Math.abs(errorDegrees) <= 1) /*|| turnSpeed <= ?*/;
-		if((initialAngle > targetAngle && Robot.ahrs.getAngle()<=targetAngle) || (initialAngle < targetAngle && Robot.ahrs.getAngle()>=targetAngle))
-		{
-			if (!reachedEnd) {
-				System.out.println("REACHED END");
-			}
-			reachedEnd = true;
-		}
-		if (!reachedEnd) {
-			timeFinished = System.currentTimeMillis() + 2000;
-		}
-		if (timeFinished < System.currentTimeMillis()) {
-			Robot.drivetrain.arcadeDrive(0.0, 0.0);
-			double finalAngle = Robot.ahrs.getAngle();
-			System.out.println("final angle: " + finalAngle);
-			System.out.println("    final diff: " + (finalAngle - initialAngle));
-			return true;
-		}
-		return false;
+		return((turnLeft == -1 && Robot.ahrs.getAngle()<=targetAngle) || (turnLeft == 1 && Robot.ahrs.getAngle()>=targetAngle));
     }
 
     // Called once after isFinished returns true
