@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
 	public static Claw claw;
 	public static OI oi;
 	public static AHRS ahrs = new AHRS(SPI.Port.kMXP);
-	public static PixyVision pixy = new PixyVision();
+	public static PixyVision pixy = new PixyVision(true, true);
 
 	public static long startingTime;
 	public static boolean isAuto;
