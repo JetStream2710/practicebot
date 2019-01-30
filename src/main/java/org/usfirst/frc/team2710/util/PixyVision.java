@@ -1,55 +1,133 @@
 package org.usfirst.frc.team2710.util;
 
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class PixyVision {
-    private static final long pollFrequencyMillis = 16;
+    private static final boolean DEBUG = false;
+    private static final long POLL_FREQUENCY_MILLIS = 1 + (1000 / 60);
+
+    private PixyLine latestLine;
+    private PixyBlock leftBlock;
+    private PixyBlock rightBlock;
+
+    private boolean turnOnLamp;
+    private boolean turnOffLamp;
+    private boolean trackLines;
+    private boolean trackObjects;
 
     private boolean isRunning;
-    private PixyLine latestLine;
-
     private PixyVisionThread thread;
 
-    public PixyLine getLatestLine(){
+
+    public PixyVision(boolean trackLines, boolean trackObjects) {
+        this.trackLines = trackLines;
+        this.trackObjects = trackObjects;
+    }
+
+    public PixyLine getLatestLine() {
         return latestLine;
     }
 
-    public void start(){
-        thread = new PixyVisionThread();
-        isRunning = true;
-        thread.start();
+    public PixyBlock getLeftBlock() {
+        return leftBlock;
     }
 
-    public void stop(){
-        isRunning = false;
-        thread.stop();
-        thread = null;
+    public PixyBlock getRightBlock() {
+        return rightBlock;
     }
 
-    public final class PixyVisionThread extends Thread{
-        private PixyI2CDriver driver = new PixyI2CDriver();
-        @Override
-        public void run(){
-            System.out.println("starting Pixy Vision Thread");
-            while(isRunning){
-                PixyLine line = driver.lineTracking();
-                if(line != null && isValid(line)){
-                    //System.out.println("... acquiring: " + line);
-                    latestLine = line;
-                }
-                try{
-                    Thread.sleep(pollFrequencyMillis);
-                }
-                catch(InterruptedException e){
-                    System.out.println("pixy vision was interrupted");
-                }
-            }
-            System.out.println("stopping Pixy Vision Thread");
+    public void turnOnLamp() {
+        turnOnLamp = true;
+    }
+
+    public void turnOffLamp() {
+        turnOffLamp = true;
+    }
+
+    public synchronized void start() {
+        if (thread == null) {
+            thread = new PixyVisionThread();
+            isRunning = true;
+            thread.start();
         }
-        private boolean isValid(PixyLine line){
-            if(line.getLowerX() == line.getUpperX() && 
-               line.getLowerY() == line.getUpperY()){
-                return false;
+    }
+
+    public synchronized void stop() {
+        if (thread != null) {
+            isRunning = false;
+            thread.interrupt();
+            thread = null;
+        }
+    }
+
+    class PixyVisionThread extends Thread {
+        //private PixyI2CDriver driver = new PixyI2CDriver();
+        private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS0);
+        private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
+
+        @Override
+        public void run() {
+            debug("running thread");
+            while (isRunning) {
+                if (turnOnLamp) {
+                    driver.turnOnLamp();
+                    driver2.turnOnLamp();
+                    turnOnLamp = false;
+                }
+                if (turnOffLamp) {
+                    driver.turnOffLamp();
+                    driver2.turnOffLamp();
+                    turnOffLamp = false;
+                }
+                if (trackLines) {
+                    PixyLine line = driver.lineTracking();
+                    if (line != null && isValid(line)) {
+                        debug("found line: " + line);
+                        latestLine = line;
+                    }
+                }
+                if (trackObjects) {
+                    PixyBlock[] blocks = driver2.objectTracking();
+                    if (blocks != null && isValid(blocks)) {
+                        if (blocks[0].getCenterX() < blocks[1].getCenterX()) {
+                            leftBlock = blocks[0];
+                            rightBlock = blocks[1];
+                        } else {
+                            leftBlock = blocks[1];
+                            rightBlock = blocks[0];
+                        }
+                        debug("found objects left: " + leftBlock + " right: " + rightBlock);
+                    }
+                }
+
+                try {
+                    Thread.sleep(POLL_FREQUENCY_MILLIS);
+                }
+                catch (InterruptedException e) {
+                    debug("interrupted thread");
+                }
             }
-            return true;
+            debug("stopping thread");
+        }
+    }
+
+    private boolean isValid(PixyLine line) {
+        if (line.getLowerX() == line.getUpperX() && 
+            line.getLowerY() == line.getUpperY()) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValid(PixyBlock[] blocks) {
+        return blocks.length == 2 && blocks[0].getSignature() != 0 && blocks[1].getSignature() != 0;
+    }
+
+    private void debug(String msg) {
+        if (DEBUG) {
+            System.out.println("PixyVision: " + msg);
+            SmartDashboard.putString("PixyVision: ", msg);
         }
     }
 }
