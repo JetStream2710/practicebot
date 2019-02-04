@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  */
 public class Drivetrain extends Subsystem {
 	
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false ;
 
 	private WPI_TalonSRX frontLeftTalon = null;		
 	private WPI_TalonSRX rearLeftTalon = null;
@@ -84,6 +84,11 @@ public class Drivetrain extends Subsystem {
 		debug("constructor");
 	}
 	
+	public void tankDrive(double leftSpeed, double rightSpeed) {
+		debug("tank drive leftSpeed: " + leftSpeed + " rightSpeed: " + rightSpeed);
+		differentialDrive.tankDrive(rightSpeed, leftSpeed);
+	}
+
 	public void arcadeDrive(double moveSpeed, double rotateSpeed) {
 		//System.out.println("arcade drive: " + moveSpeed + " , " + rotateSpeed
 		//		             + " @ " + System.currentTimeMillis());

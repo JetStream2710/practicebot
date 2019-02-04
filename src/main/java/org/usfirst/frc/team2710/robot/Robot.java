@@ -2,6 +2,7 @@ package org.usfirst.frc.team2710.robot;
 
 import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
+import org.usfirst.frc.team2710.util.PixyLine;
 import org.usfirst.frc.team2710.util.PixyVision;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -15,22 +16,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.usfirst.frc.team2710.robot.commands.Autonomous;
-import org.usfirst.frc.team2710.robot.commands.CargoAuto3;
-import org.usfirst.frc.team2710.robot.commands.CargoAuto4;
-import org.usfirst.frc.team2710.robot.commands.CargoAuto5;
-import org.usfirst.frc.team2710.robot.commands.RightRocketAuto;
-import org.usfirst.frc.team2710.robot.commands.TurnDegrees;
-import org.usfirst.frc.team2710.robot.commands.DriveCommand;
-import org.usfirst.frc.team2710.robot.commands.DriveForward;
-import org.usfirst.frc.team2710.robot.commands.DriveForwardSeconds;
-import org.usfirst.frc.team2710.robot.commands.DriveShiftDown;
-import org.usfirst.frc.team2710.robot.commands.DriveShiftUp;
-import org.usfirst.frc.team2710.robot.commands.IntakeClaw;
-import org.usfirst.frc.team2710.robot.commands.OpenClaw;
-import org.usfirst.frc.team2710.robot.commands.OuttakeClaw;
-import org.usfirst.frc.team2710.robot.commands.RightRocketAuto;
-import org.usfirst.frc.team2710.robot.commands.FollowLine;
+import org.usfirst.frc.team2710.robot.commands.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,7 +40,7 @@ public class Robot extends TimedRobot {
 	
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-	private FollowLine followLineCmd;
+	private FollowLinePhase1 linePhase1;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -116,9 +102,15 @@ public class Robot extends TimedRobot {
 //		SmartDashboard.putString("Event Log: ", "Autonomous Init");
 //		startingTime = System.currentTimeMillis();
 		//auto.start();
-		isAuto = true;
-		followLineCmd = new FollowLine();
-		followLineCmd.start();
+		isAuto = true;	
+
+		//followLineCmd = new FollowLine();
+
+		linePhase1 = new FollowLinePhase1();
+		linePhase1.start();
+
+		//tankDriveCmd = new TankDriveSeconds(1000, 0.6,0.4);
+		//tankDriveCmd.start();
 		
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -151,6 +143,25 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		/*
+		PixyLine line = Robot.pixy.getLatestLine();
+		if(line == null) {
+			System.out.println("No line");
+			return;
+		}
+		int lowerX = line.getLowerX();
+        int upperX = line.getUpperX();
+        int lowerY = line.getLowerY();
+        int upperY = line.getUpperY();
+
+        double differX = (double)(upperX-lowerX);
+        double differY = (double)(upperY-lowerY);
+
+        double radians = Math.atan(differX/differY);
+        double angle = radians*180/Math.PI;
+
+		System.out.println("PixyLine: \n" + "LowX" + lowerX + "LowY" + lowerY + "Angle" + angle);
+		*/
 		Scheduler.getInstance().run();
 		//System.out.println("hello");
 		
@@ -176,6 +187,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
+
 		//System.out.println(pixy.getLatestLine());
 
 /*		System.out.println("Angle: " + ahrs.getAngle() + " Yaw: " + ahrs.getYaw() +

@@ -62,9 +62,9 @@ public class PixyVision {
     }
 
     class PixyVisionThread extends Thread {
-        //private PixyI2CDriver driver = new PixyI2CDriver();
-        private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS0);
-        private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
+        private PixyI2CDriver driver = new PixyI2CDriver();
+        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS0);
+        //private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
 
         @Override
         public void run() {
@@ -72,12 +72,12 @@ public class PixyVision {
             while (isRunning) {
                 if (turnOnLamp) {
                     driver.turnOnLamp();
-                    driver2.turnOnLamp();
+                    //driver2.turnOnLamp();
                     turnOnLamp = false;
                 }
                 if (turnOffLamp) {
                     driver.turnOffLamp();
-                    driver2.turnOffLamp();
+                    //driver2.turnOffLamp();
                     turnOffLamp = false;
                 }
                 if (trackLines) {
@@ -87,6 +87,7 @@ public class PixyVision {
                         latestLine = line;
                     }
                 }
+                /*
                 if (trackObjects) {
                     PixyBlock[] blocks = driver2.objectTracking();
                     if (blocks != null && isValid(blocks)) {
@@ -100,6 +101,7 @@ public class PixyVision {
                         debug("found objects left: " + leftBlock + " right: " + rightBlock);
                     }
                 }
+                */
 
                 try {
                     Thread.sleep(POLL_FREQUENCY_MILLIS);

@@ -6,18 +6,15 @@ import org.usfirst.frc.team2710.robot.Robot;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team2710.util.PixyLine;
 
-public class FollowLine extends Command {
-    private double minTurnSpeed = 0.2;
-    private double maxTurnSpeed = 0.6;
+public class FollowLine2 extends Command {
+    private double minTurnSpeed = 0.45;
+    private double maxTurnSpeed = 0.3;
     private double minDriveSpeed;
     private double maxDriveSpeed;
 
-    // x = y*idealSlope
-    private double idealSlope = (Math.tan(Math.toRadians(15))); // returns x/y not y/x
-    double idealAngle = 15;
     private final int MIDDLE_X = 40;
     
-    public FollowLine() {
+    public FollowLine2() {
         requires(Robot.drivetrain);
         System.out.println("Follow line constructor");
     }
@@ -32,13 +29,8 @@ public class FollowLine extends Command {
         return MIDDLE_X - lowerX;
     }
 
-    public int getXOnIdealLine(int y) {
-        return (int)((idealSlope*y)+57.383);
-    }
-
     /**
      * @param line
-     * 
      * @return the angle the line is at, positive if the slope is positive
      *     and negative if the slope is negative. Note pixy coordinates extend
      *     down and to the right.
@@ -61,50 +53,22 @@ public class FollowLine extends Command {
     @Override
     public void execute(){
         PixyLine line = Robot.pixy.getLatestLine();
-        if(line == null) {
-            System.out.println("No Line");
-            return;
-        }
         int offsetFromMiddle = getOffsetFromMiddle(line);
         double angleFromVertical = getAngleFromVertical(line);
         System.out.println("offset: " + offsetFromMiddle + " angle: " + angleFromVertical +
          " lowX=" + line.getLowerX() + " lowY=" + line.getLowerY() +
          " highX=" + line.getUpperX() + " highY=" + line.getUpperY());
 
-        //turnspeed 0.2-0.8
+        double baseMoveSpeed =0;
+        double leftOffset =0;
+        double rightOffset = 0;
+
         
-        // STUFF AARON ADDED 2/2/2019
 
-        // +/- 2 units for some leeway
-        if(getXOnIdealLine(line.getLowerY()) > (line.getLowerX()) + 1) { // if line is left
-            System.out.println("Line is to the Left");
+        Robot.drivetrain.tankDrive(baseMoveSpeed + leftOffset, baseMoveSpeed + rightOffset);
 
-            // spin left (make leftOffset postiive, rightOffset negative to turn in place)
-            // set basespeed to zero
-
-        } else if(getXOnIdealLine(line.getLowerY()) < (line.getLowerX()) -1 ) { // if line is right
-            System.out.println("Line is to the Right");
-
-            // spin right (make rightOffset postiive, leftOffset negative to turn in place)
-            // set basespeed to zero
-        } else { // if bottom point of line is somewhere on the ideal line 
-            // set basespeed to some nonzero value
-
-            // +/- 1 degree for leeway
-            if(getAngleFromVertical(line)-1 > idealAngle) {
-                // turn right (add to rightOffset; leftOffset is zero) 
-            } 
-            if(getAngleFromVertical(line)+1 < idealAngle) {
-                // turn right (add to rightOffset; leftOffset is zero) 
-            } 
-        }
-
-        // OLD CODE -AARON  |
-        //                  |
-        //                  V
-        
-       // calculates turnmagnitude between 0.2-0.8, starting to decrease at 60 degrees, and hitting 0.2 and 0
-       double turnMagnitude = (Math.abs(angleFromVertical/60.0)*(maxTurnSpeed-minTurnSpeed))+minTurnSpeed;
+       /* 
+        double turnMagnitude = (Math.abs(angleFromVertical/60.0)*(maxTurnSpeed-minTurnSpeed))+minTurnSpeed;
         if(turnMagnitude > maxTurnSpeed)
         {
             turnMagnitude = maxTurnSpeed;
@@ -115,7 +79,6 @@ public class FollowLine extends Command {
         }
         
         double speedValue = 0.5;
-
         double turnValue = turnMagnitude;
         if(offsetFromMiddle<0){
             turnValue = -1 * turnMagnitude;
@@ -139,8 +102,9 @@ public class FollowLine extends Command {
             System.out.println("Move towards offset: offset=" + offsetFromMiddle + " turn=" + turnValue);
         }
         System.out.println("    speed: " + speedValue + "  turn: " + turnValue);
-//        Robot.drivetrain.arcadeDrive(speedValue, turnValue);
-        Robot.drivetrain.arcadeDrive(0, 0);
+
+        Robot.drivetrain.arcadeDrive(speedValue, turnValue);
+        */
     }
 
     @Override
@@ -154,7 +118,7 @@ public class FollowLine extends Command {
 
     public boolean shouldStop(PixyLine line){
         int upperY = line.getUpperY();
-        return upperY > 40;
+        return upperY > 26;
     }
 
     @Override
