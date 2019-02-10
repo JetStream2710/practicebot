@@ -1,6 +1,5 @@
 package org.usfirst.frc.team2710.util;
 
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PixyVision {
@@ -42,7 +41,7 @@ public class PixyVision {
     }
 
     public void turnOffLamp() {
-        turnOffLamp = true;
+        turnOffLamp = false;
     }
 
     public synchronized void start() {
@@ -62,22 +61,24 @@ public class PixyVision {
     }
 
     class PixyVisionThread extends Thread {
-        private PixyI2CDriver driver = new PixyI2CDriver();
-        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS0);
+        private PixyI2CDriver driver = new PixyI2CDriver(0x54);
+        private PixyI2CDriver driver2 = new PixyI2CDriver(0x53);
+        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS1);
         //private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
-
+      //  private PixyI2CDriver2 driver3 = new PixyI2CDriver2();
+    
         @Override
         public void run() {
             debug("running thread");
             while (isRunning) {
                 if (turnOnLamp) {
                     driver.turnOnLamp();
-                    //driver2.turnOnLamp();
+                    driver2.turnOnLamp();
                     turnOnLamp = false;
                 }
                 if (turnOffLamp) {
                     driver.turnOffLamp();
-                    //driver2.turnOffLamp();
+                    driver2.turnOffLamp();
                     turnOffLamp = false;
                 }
                 if (trackLines) {
@@ -110,7 +111,6 @@ public class PixyVision {
                     debug("interrupted thread");
                 }
             }
-            debug("stopping thread");
         }
     }
 

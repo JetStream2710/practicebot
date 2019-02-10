@@ -3,7 +3,6 @@ package org.usfirst.frc.team2710.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 
 import org.usfirst.frc.team2710.robot.Robot;
-import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team2710.util.PixyLine;
 
 public class FollowLine3 extends Command {
@@ -12,16 +11,18 @@ public class FollowLine3 extends Command {
     private double minDriveSpeed;
     private double maxDriveSpeed;
 
+    // Viewport constants
     public static final int MAX_Y = 78;
     public static final int MAX_X = 51;
 
     // The line following algorithm stops when the upper Y coordinate of the line reaches this value.
-    public static final int LINE_FOLLOW_STOP_AT_Y = 45;
+    public static final int LINE_FOLLOW_STOP_AT_Y = 41;
 
-    // The line following algorithm attempts to target this 
+    // The line following algorithm attempts to target this X coordinate (when the line is centered for the robot)
     public static final int LINE_FOLLOW_TARGET_X = 71;
 
-    public static final double LINE_FOLLOWING_Y_DIFF_OFFSET = -1 * Math.tan(Math.toRadians(15));
+    // The ideal slope of the line we want to follow
+    public static final double LINE_FOLLOWING_IDEAL_SLOPE = Math.tan(Math.toRadians(15));
 
     
     public FollowLine3() {
@@ -37,13 +38,14 @@ public class FollowLine3 extends Command {
     /**
      * @return the bottom x coordinate of the line if it were to extend to the bottom of the screen
      */
-    private int extrapolateBottomX(PixyLine line) {
-        if (line.getLowerY() == MAX_Y) {
-            return line.getLowerX();
+    private int[] extrapolate(PixyLine line) {
+        int extraY = line.getLowerY() + 5;
+        if (extraY > MAX_Y) {
+            extraY = MAX_Y;
         }
-        double yDiffOffset = (double)(line.getLowerX() - line.getUpperX()) / (line.getLowerY() - line.getUpperY());
-        int xOffset = (int)((MAX_Y - line.getLowerY()) * yDiffOffset);
-        return line.getLowerX() + xOffset;
+        double ratio = (double)(line.getLowerX() - line.getUpperX()) / (line.getLowerY() - line.getUpperY());
+        int xOffset = (int)((extraY - line.getLowerY()) * ratio);
+        return new int[] {line.getLowerX() + xOffset, extraY};
     }
 
     /**
@@ -52,33 +54,85 @@ public class FollowLine3 extends Command {
      *          a negative means the line is to the left of the target
      */
     private int getXDiff(int x, int y) {
-        int yDiff = MAX_Y - y;
-        int targetX = LINE_FOLLOW_TARGET_X - (int)(yDiff * LINE_FOLLOWING_Y_DIFF_OFFSET);
-        return x - targetX;
+        return getIdealX(y) - x;
     }
 
-    // Negative speedDiff means turn left, positive speedDiff means turn right
-    // Note that this function assumes the robot does not need to turn more than 90 degrees left or right.
-    private void turn(PixyLine line, double speed, double speedDiff) {
-        if (speedDiff > 0.2) {
-            speedDiff = 0.2;
+    private int getIdealX(int y) {
+        return (int)((LINE_FOLLOWING_IDEAL_SLOPE * y) + 57.33);
+    }
+
+    private void move(PixyLine line, int error, double speed, double turnSpeed) {
+        // go slower when we see a larger error
+        double speedErr = Math.abs(1.0 / error);
+        if (speedErr < 0.5) {
+            speedErr = 0.5;
         }
-        if (speedDiff < -0.2) {
-            speedDiff = -0.2;
+        speedErr = 1;
+        // turn faster when we see a larger error
+        double turnErr = error / 10.0;
+        if (turnErr > 1) {
+            turnErr = 1;
         }
-        if (line.getLowerX() > line.getUpperX()) {
-            // turn left or go straight
-            if (speedDiff > 0) {
-                speedDiff = 0;
-            }
-            Robot.drivetrain.tankDrive(speed - speedDiff, speed);
+        turnErr = 1;
+        double moveSpeed = speed * speedErr;
+        double moveTurnSpeed = turnSpeed * turnErr;
+        System.out.println("... error: " + error + " speed: " + speed + " x " + speedErr + " = " + moveSpeed +
+        "  turn: " + turnSpeed + " x " + turnErr + " = " + moveTurnSpeed);
+        Robot.drivetrain.arcadeDrive(moveSpeed, moveTurnSpeed);
+    }
+
+    @Override
+    public void execute(){
+        PixyLine line = Robot.pixy.getLatestLine();
+        // stop following if line info is too old
+        if (line == null) {
+            System.out.println("no line found");
+            return;
+        }
+
+        /*
+        if (line.getLowerY() < MAX_Y && Math.abs(line.getLowerX() - LINE_FOLLOW_TARGET_X) > 1) {
+            // drive toward the extrapolated bottom point of the line
+            int x = extrapolateBottomX(line);
+            int xDiff = getXDiff(x, MAX_Y);
+            System.out.println("drive to view, xDiff=" + xDiff + " , " + line + " slope: " + slope(line) + " extrap: " + x);
+            move(line, xDiff, 0.55, xDiff > 0 ? 0.6 : -0.6);
         } else {
-            // turn right or go straight
-            if (speedDiff < 0) {
-                speedDiff = 0;
+            */
+
+            /*
+            int x, y;
+            if (line.getLowerY() < MAX_Y) {
+                int[] temp = extrapolate(line);
+                x = temp[0];
+                y = temp[1];
+            } else {
+                x = line.getLowerX();
+                y = line.getLowerY();
             }
-            Robot.drivetrain.tankDrive(speed, speed + speedDiff);
-        }
+            int xDiff = getXDiff(x, y);
+            */
+            int xDiff = getXDiff(line.getLowerX(), line.getLowerY());
+            if (line.getLowerY() < 20) {
+                move(line, xDiff, 0.55, 0);
+                return;
+            }
+            if (Math.abs(xDiff) > 1) {
+                // drive toward the bottom point of the line
+                System.out.println("drive to low, xDiff=" + xDiff + " , " + line + " slope: " + slope(line));
+                move(line, xDiff, 0.55, 0.45);
+            } else {
+                // drive toward the upper point of the line
+                xDiff = getXDiff(line.getUpperX(), line.getUpperY());
+                System.out.println("drive to high, xDiff=" + xDiff + " , " + line);
+                move(line, xDiff, 0.55, 0.35);
+            }
+//        }
+    }
+
+    public String slope(PixyLine line) {
+        return "" + (double) (line.getLowerX() - line.getUpperX()) / (line.getLowerY() - line.getUpperY()) +
+        " (" + LINE_FOLLOWING_IDEAL_SLOPE + ")";
     }
 
     /**
@@ -101,45 +155,7 @@ public class FollowLine3 extends Command {
         double angle = radians*180/Math.PI;
         return angle;
     }
-
-    @Override
-    public void execute(){
-        PixyLine line = Robot.pixy.getLatestLine();
-        // stop following if line info is too old
-        if (line == null) {
-            System.out.println("no line found");
-            return;
-        }
-
-         double speed = 0.5;
-         double speedDiff = 0.2 * ((15 - getAngleFromVertical(line)) / 90);
-
-         if (line.getLowerY() < MAX_Y) {
-            // drive toward the extrapolated bottom point of the line
-            int x = extrapolateBottomX(line);
-            int xDiff = getXDiff(x, MAX_Y);
-            System.out.println("drive to ex, xDiff=" + xDiff + "lowX=" + line.getLowerX() + " lowY=" + line.getLowerY() +
-            " highX=" + line.getUpperX() + " highY=" + line.getUpperY());
-               turn(line, speed, xDiff < 0 ? (speedDiff * -1) : speedDiff);
-        } else {
-            int xDiff = getXDiff(line.getLowerX(), line.getLowerY());
-            if (xDiff < -1 || xDiff > 1) {
-                // drive toward the bottom point of the line
-                System.out.println("drive to low, xDiff=" + xDiff + "lowX=" + line.getLowerX() + " lowY=" + line.getLowerY() +
-                " highX=" + line.getUpperX() + " highY=" + line.getUpperY());
-                   turn(line, speed, xDiff < 0 ? (speedDiff * -1) : speedDiff);
-                    turn(line, speed, xDiff < 0 ? (speedDiff * -1) : speedDiff);
-            } else {
-                // drive toward the upper point of the line
-                xDiff = getXDiff(line.getUpperX(), line.getUpperY());
-                System.out.println("drive to hi, xDiff=" + xDiff + "lowX=" + line.getLowerX() + " lowY=" + line.getLowerY() +
-                " highX=" + line.getUpperX() + " highY=" + line.getUpperY());
-                   turn(line, speed, xDiff < 0 ? (speedDiff * -1) : speedDiff);
-                    turn(line, speed, xDiff < 0 ? (speedDiff * -1) : speedDiff);
-            }
-        }
-    }
-
+    
     @Override
     public boolean isFinished() {
         boolean temp = shouldStop(Robot.pixy.getLatestLine());

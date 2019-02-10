@@ -21,13 +21,15 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  */
 public class Drivetrain extends Subsystem {
 	
-	public static final boolean DEBUG = false ;
+	public static final boolean DEBUG = true ;
 
 	private WPI_TalonSRX frontLeftTalon = null;		
 	private WPI_TalonSRX rearLeftTalon = null;
 	
 	private WPI_TalonSRX frontRightTalon = null;
 	private WPI_TalonSRX rearRightTalon = null;
+
+	private Encoder enc;
 	
 //	private AHRS ahrs;
 	
@@ -60,7 +62,10 @@ public class Drivetrain extends Subsystem {
 		
 		SpeedControllerGroup leftGroup = new SpeedControllerGroup(frontLeftTalon, rearLeftTalon);
 		SpeedControllerGroup rightGroup = new SpeedControllerGroup(frontRightTalon, rearRightTalon);
-		
+
+		enc = new Encoder(8,7, false, Encoder.EncodingType.k4X);
+		enc.reset();		
+		enc.setDistancePerPulse(6*Math.PI/1024);
 //		ahrs = new AHRS(SPI.Port.kMXP);
 
 		/*
@@ -92,7 +97,8 @@ public class Drivetrain extends Subsystem {
 	public void arcadeDrive(double moveSpeed, double rotateSpeed) {
 		//System.out.println("arcade drive: " + moveSpeed + " , " + rotateSpeed
 		//		             + " @ " + System.currentTimeMillis());
-		debug("arcade drive movespeed: " + moveSpeed + " rotatespeed: " + rotateSpeed);
+		debug("arcade drive movespeed: " + moveSpeed + " rotatespeed: " + rotateSpeed + " encoder: " + enc.get() + " getRaw: " + enc.getRaw() + 
+			" getRate: " + enc.getRate() + " getDistance: " + enc.getDistance());
 		differentialDrive.arcadeDrive(moveSpeed, rotateSpeed);
 	}
 	
@@ -162,6 +168,10 @@ public class Drivetrain extends Subsystem {
 		debug("initDefaultCommand to DriveArcade");
 		// Set the default command for a subsystem here.
 		setDefaultCommand(new DriveCommand());
+	}
+
+	public int getPosition(){
+		return enc.get();
 	}
 	
 	private void debug(String s) {

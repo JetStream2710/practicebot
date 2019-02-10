@@ -2,6 +2,8 @@ package org.usfirst.frc.team2710.robot;
 
 import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
+import org.usfirst.frc.team2710.util.PixyI2CDriver;
+import org.usfirst.frc.team2710.util.PixyI2CDriver2;
 import org.usfirst.frc.team2710.util.PixyLine;
 import org.usfirst.frc.team2710.util.PixyVision;
 
@@ -50,7 +52,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		SmartDashboard.putString("Event Log: ", "Robot Init");
 		drivetrain = new Drivetrain();
-		claw = new Claw();
+//		claw = new Claw();
 		oi = new OI();
 		limitSwitch = new DigitalInput(9);
 		pixy.start();
@@ -106,8 +108,10 @@ public class Robot extends TimedRobot {
 
 		//followLineCmd = new FollowLine();
 
-		linePhase1 = new FollowLinePhase1();
-		linePhase1.start();
+		//linePhase1 = new FollowLinePhase1();
+		//linePhase1.start();
+//		FollowLine3 fl3 = new FollowLine3();
+//		fl3.start();
 
 		//tankDriveCmd = new TankDriveSeconds(1000, 0.6,0.4);
 		//tankDriveCmd.start();
@@ -126,12 +130,8 @@ public class Robot extends TimedRobot {
 		}
 		*/
 		
-		//new Autonomous();
-		//new CargoAuto3();
-		//System.out.println("cargo auto 3");
-//		new CargoAuto4();
-//		new CargoAuto5();
-//		new RightRocketAuto();
+		FollowLine3 fl = new FollowLine3();
+		fl.start();
 
 		//		drivetrain.turn(ahrs, 180);
 //		drivetrain.driveForward(startingTime, 1);
@@ -179,6 +179,8 @@ public class Robot extends TimedRobot {
 		// this line or comment it out.
 		isAuto = false;
 		ahrs.zeroYaw();
+
+//		pixy1.turnOnLamp();
 	}
 
 	/**
