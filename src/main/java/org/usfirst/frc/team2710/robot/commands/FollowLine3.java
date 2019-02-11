@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 
 import org.usfirst.frc.team2710.robot.Robot;
 import org.usfirst.frc.team2710.util.PixyLine;
+import org.usfirst.frc.team2710.util.PixyVision;
 
 public class FollowLine3 extends Command {
     private double minTurnSpeed = 0.45;
@@ -12,8 +13,8 @@ public class FollowLine3 extends Command {
     private double maxDriveSpeed;
 
     // Viewport constants
-    public static final int MAX_Y = 78;
-    public static final int MAX_X = 51;
+    public static final int MAX_Y = 51;
+    public static final int MAX_X = 78;
 
     // The line following algorithm stops when the upper Y coordinate of the line reaches this value.
     public static final int LINE_FOLLOW_STOP_AT_Y = 41;
@@ -21,8 +22,10 @@ public class FollowLine3 extends Command {
     // The line following algorithm attempts to target this X coordinate (when the line is centered for the robot)
     public static final int LINE_FOLLOW_TARGET_X = 71;
 
+    public static final double IDEAL_ANGLE = 15;
+
     // The ideal slope of the line we want to follow
-    public static final double LINE_FOLLOWING_IDEAL_SLOPE = Math.tan(Math.toRadians(15));
+    public static final double LINE_FOLLOWING_IDEAL_SLOPE = Math.tan(Math.toRadians(IDEAL_ANGLE));
 
     
     public FollowLine3() {
@@ -63,22 +66,33 @@ public class FollowLine3 extends Command {
 
     private void move(PixyLine line, int error, double speed, double turnSpeed) {
         // go slower when we see a larger error
-        double speedErr = Math.abs(1.0 / error);
-        if (speedErr < 0.5) {
-            speedErr = 0.5;
-        }
-        speedErr = 1;
-        // turn faster when we see a larger error
-        double turnErr = error / 10.0;
-        if (turnErr > 1) {
-            turnErr = 1;
-        }
-        turnErr = 1;
-        double moveSpeed = speed * speedErr;
-        double moveTurnSpeed = turnSpeed * turnErr;
-        System.out.println("... error: " + error + " speed: " + speed + " x " + speedErr + " = " + moveSpeed +
-        "  turn: " + turnSpeed + " x " + turnErr + " = " + moveTurnSpeed);
+        
+        double moveSpeed = speed;
+        double moveTurnSpeed = turnSpeed * getTurnSpeed(line);
+        System.out.println("... error: " + error + " speed: " + moveSpeed +
+        "  turn: " + turnSpeed + " x " + getTurnSpeed(line) + " = " + moveTurnSpeed);
         Robot.drivetrain.arcadeDrive(moveSpeed, moveTurnSpeed);
+    }
+    /**
+     * Returns adjusted turn speed based upon angleError and bottomYError
+     * @param line
+     * @return double from 0.0-1.0
+     */
+    public double getTurnSpeed(PixyLine line) {
+        double angleError = Math.abs(getAngleFromVertical(line) - IDEAL_ANGLE);
+        double bottomYError = MAX_Y - line.getLowerY();
+        double adjAngleError = (angleError/45); // 0.0 < x < 0.5 
+        double adjBottomYError = 1.0 - (bottomYError / MAX_Y); // 0.0 < x < 0.5
+
+
+        //angle is great, bottom is small = medium
+        //angle is small, bottom is great = medium
+        //angle is great, bottom is great = large
+        //angle is small, bottom is small = small
+
+        double turnSpeed = adjAngleError*adjBottomYError;
+        System.out.println("adjAngleError: " + adjAngleError + " adjBottomYError: " + adjBottomYError);
+        return turnSpeed + 0.5;
     }
 
     @Override
@@ -140,6 +154,7 @@ public class FollowLine3 extends Command {
      * @return the angle the line is at, positive if the slope is positive
      *     and negative if the slope is negative. Note pixy coordinates extend
      *     down and to the right.
+     * In other words, left is positive and right is negative due to 0,0 being at top left
      */
     public double getAngleFromVertical(PixyLine line){
 
