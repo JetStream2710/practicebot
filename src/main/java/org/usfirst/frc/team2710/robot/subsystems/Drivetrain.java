@@ -21,13 +21,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  */
 public class Drivetrain extends Subsystem {
 	
-	public static final boolean DEBUG = true ;
+	public static final boolean DEBUG = false ;
 
-	private WPI_TalonSRX frontLeftTalon = null;		
-	private WPI_TalonSRX rearLeftTalon = null;
+	public WPI_TalonSRX frontLeftTalon = null;		
+	public WPI_TalonSRX rearLeftTalon = null;
 	
-	private WPI_TalonSRX frontRightTalon = null;
-	private WPI_TalonSRX rearRightTalon = null;
+	public WPI_TalonSRX frontRightTalon = null;
+	public WPI_TalonSRX rearRightTalon = null;
 
 	private Encoder enc;
 	

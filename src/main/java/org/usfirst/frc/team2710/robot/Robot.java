@@ -181,6 +181,30 @@ public class Robot extends TimedRobot {
 		ahrs.zeroYaw();
 
 //		pixy1.turnOnLamp();
+
+		testMotor();
+	}
+
+	public static boolean isTested = false;
+	public void testMotor() {
+		if (isTested) {
+			return;
+		}
+		isTested = true;
+
+		drivetrain.frontLeftTalon.set(0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.set(-0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.setInverted(true);
+		drivetrain.frontLeftTalon.set(0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON inverted, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.set(-0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON inverted, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
 	}
 
 	/**
