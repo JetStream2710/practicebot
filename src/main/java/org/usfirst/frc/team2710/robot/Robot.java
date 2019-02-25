@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		SmartDashboard.putString("Event Log: ", "Robot Init");
 		drivetrain = new Drivetrain();
-		claw = new Claw();
+//		claw = new Claw();
 		oi = new OI();
 		limitSwitch = new DigitalInput(9);
 		pixy.start();
@@ -132,12 +132,8 @@ public class Robot extends TimedRobot {
 		}
 		*/
 		
-		//new Autonomous();
-		//new CargoAuto3();
-		//System.out.println("cargo auto 3");
-//		new CargoAuto4();
-//		new CargoAuto5();
-//		new RightRocketAuto();
+		FollowLine3 fl = new FollowLine3();
+		fl.start();
 
 		//		drivetrain.turn(ahrs, 180);
 //		drivetrain.driveForward(startingTime, 1);
@@ -187,6 +183,33 @@ public class Robot extends TimedRobot {
 		ahrs.zeroYaw();
 
 //		pixy1.turnOnLamp();
+<<<<<<< HEAD
+=======
+
+		testMotor();
+	}
+
+	public static boolean isTested = false;
+	public void testMotor() {
+		if (isTested) {
+			return;
+		}
+		isTested = true;
+
+		drivetrain.frontLeftTalon.set(0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.set(-0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.setInverted(true);
+		drivetrain.frontLeftTalon.set(0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON inverted, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+		drivetrain.frontLeftTalon.set(-0.2);
+		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
+		System.out.println("FRONT LEFT TALON inverted, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
+>>>>>>> 7a8dd077b2ac4c1079ff6a13cecba529f35c2a38
 	}
 
 	/**

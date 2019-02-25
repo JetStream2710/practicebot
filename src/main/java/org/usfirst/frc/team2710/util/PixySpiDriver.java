@@ -48,10 +48,18 @@ public class PixySPIDriver {
 
 		// Set some SPI parameters.
 		pixy.setMSBFirst();
+//		pixy.setLSBFirst();
 		pixy.setChipSelectActiveLow();
 		pixy.setClockRate(1000);
+<<<<<<< HEAD
 		pixy.setSampleDataOnFalling();
 		pixy.setClockActiveLow();
+=======
+//		pixy.setSampleDataOnTrailingEdge();
+		pixy.setSampleDataOnLeadingEdge();
+//		pixy.setClockActiveLow();
+		pixy.setClockActiveHigh();
+>>>>>>> 7a8dd077b2ac4c1079ff6a13cecba529f35c2a38
 	}
 
 	//This method gathers data, then parses that data, and assigns the ints to global variables

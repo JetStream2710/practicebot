@@ -18,7 +18,7 @@ public class PixyI2CDriver {
 		(byte) 22,
 		(byte) 2,
 		(byte) 1,
-		(byte) 0
+		(byte) 1
 	};
 
 	private byte[] TURN_OFF_LAMP = {
@@ -26,8 +26,8 @@ public class PixyI2CDriver {
 		(byte) 193,
 		(byte) 22,
 		(byte) 2,
-		(byte) 1,
-		(byte) 1
+		(byte) 0,
+		(byte) 0
 	};
 
 	private byte[] LINE_TRACKING = {
@@ -86,11 +86,13 @@ public class PixyI2CDriver {
 			byte[] dataReceived = new byte[14];
 			pixy.transaction(LINE_TRACKING, LINE_TRACKING.length, dataReceived, dataReceived.length);
 //			System.out.println("lineTracking data received");
-//			int i=0;
-//			for (byte b : dataReceived) {
-//				System.out.println(i+": "+(int) b + " :: " + convertUnsigned(b));
-//				i++;
-//			}
+/*
+			int i=0;
+			for (byte b : dataReceived) {
+				System.out.println(i+": "+(int) b + " :: " + convertUnsigned(b));
+				i++;
+			}
+			*/
 			return new PixyLine(dataReceived);
 			
 		} catch (Exception e) {
@@ -98,4 +100,20 @@ public class PixyI2CDriver {
 		}
 		return null;
 	}	
+	/*
+    public PixyBlock[] objectTracking() {
+        debug("objectTracking send: " + bytesToString(OBJECT_TRACKING));
+        byte[] data = new byte[17];
+        //byte[] data = new byte[34];
+        pixy.transaction(OBJECT_TRACKING, data, 2);
+        debug("... objectTracking receive: " + bytesToString(data));
+        byte[] data2 = new byte[34];
+        pixy.read(false, data2, 2);
+        debug("... objectTracking receive2: " + bytesToString(data2));
+        return new PixyBlock[] {
+            new PixyBlock(data),
+            new PixyBlock(data2)
+        };
+	}
+	*/
 }
