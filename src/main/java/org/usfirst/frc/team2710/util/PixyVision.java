@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PixyVision {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final long POLL_FREQUENCY_MILLIS = 1 + (1000 / 60);
 
     private PixyLine latestLine;
@@ -42,7 +42,7 @@ public class PixyVision {
     }
 
     public void turnOffLamp() {
-        turnOffLamp = true;
+        turnOffLamp = false;
     }
 
     public synchronized void start() {
@@ -62,13 +62,18 @@ public class PixyVision {
     }
 
     class PixyVisionThread extends Thread {
-        private PixyI2CDriver driver = new PixyI2CDriver();
-        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS0);
+        private PixyI2CDriver driver = new PixyI2CDriver(0x53);
+        //private PixyI2CDriver driver2 = new PixyI2CDriver(0x53);
+
+
+        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS1);
         //private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
+      //  private PixyI2CDriver2 driver3 = new PixyI2CDriver2();
 
         @Override
         public void run() {
             debug("running thread");
+           // turnOnLamp = true;
             while (isRunning) {
                 if (turnOnLamp) {
                     driver.turnOnLamp();
@@ -83,7 +88,7 @@ public class PixyVision {
                 if (trackLines) {
                     PixyLine line = driver.lineTracking();
                     if (line != null && isValid(line)) {
-                        debug("found line: " + line);
+                        //debug("found line: " + line);
                         latestLine = line;
                     }
                 }
@@ -110,7 +115,6 @@ public class PixyVision {
                     debug("interrupted thread");
                 }
             }
-            debug("stopping thread");
         }
     }
 

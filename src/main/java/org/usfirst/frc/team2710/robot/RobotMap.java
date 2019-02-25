@@ -43,6 +43,7 @@ public class RobotMap {
 	public static final int CLAW_SOLENOID_OFF = 7;
 	public static final int CLAW_OPEN = 5;
 	public static final int CLAW_CLOSE = 7;
+	public static final int FOLLOW_LINE = 4;
 
 	public static final int PUSH_RR_SOLENOID_ON = 4;
 	public static final int PUSH_RR_SOLENOID_OFF =5;
@@ -64,4 +65,5 @@ public class RobotMap {
 	
 	public static final int DRIVER_MOVE_AXIS = 1;
 	public static final int DRIVER_ROTATE_AXIS = 2;
+
 }

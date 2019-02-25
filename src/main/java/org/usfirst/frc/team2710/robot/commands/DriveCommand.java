@@ -31,8 +31,8 @@ public class DriveCommand extends Command {
 			return;
 		}
 		
-		double moveSpeed = Robot.oi.joystick1.getRawAxis(RobotMap.DRIVER_MOVE_AXIS);
-		double rotateSpeed = Robot.oi.joystick1.getRawAxis(RobotMap.DRIVER_ROTATE_AXIS);
+		double moveSpeed = -1 * Robot.oi.joystick1.getRawAxis(RobotMap.DRIVER_MOVE_AXIS);
+		double rotateSpeed = -1 * Robot.oi.joystick1.getRawAxis( RobotMap.DRIVER_ROTATE_AXIS);
 		debug("execute movespeed: " + moveSpeed + " rotateSpeed: " + rotateSpeed);
 		Robot.drivetrain.arcadeDrive(moveSpeed, rotateSpeed);
 		//Robot.drivetrain.curvatureDrive(moveSpeed, rotateSpeed);

@@ -60,15 +60,19 @@ public class OI {
 
 	public Button D5 = new JoystickButton(joystick1, RobotMap.PUSH_OUT);
 	public Button D6 = new JoystickButton(joystick1, RobotMap.PUSH_IN);
+
+	public Button D7 = new JoystickButton(joystick1, RobotMap.FOLLOW_LINE);
 	public OI() {
-		D1.whenPressed(new OpenClaw());
-		D2.whenPressed(new CloseClaw());
+//		D1.whenPressed(new OpenClaw());
+//		D2.whenPressed(new CloseClaw());
 	
-		D3.whileHeld(new IntakeClaw());
-		D4.whileHeld(new OuttakeClaw());
+  	D3.whileHeld(new IntakeClaw());
+	D4.whileHeld(new OuttakeClaw());
 		
-		D5.whenPressed(new PushOutClaw());
-		D6.whenPressed(new PushInClaw());
+//		D5.whenPressed(new PushOutClaw());
+//		D6.whenPressed(new PushInClaw());
+
+		D7.whenPressed(new FollowLineMethod2());
 	}
 	
 

@@ -29,10 +29,13 @@ public class PixySpiDriver {
     public PixySpiDriver(Port port) {
 		pixy = new SPI(port);
 		pixy.setMSBFirst();
+//		pixy.setLSBFirst();
 		pixy.setChipSelectActiveLow();
 		pixy.setClockRate(1000);
-		pixy.setSampleDataOnTrailingEdge();
-		pixy.setClockActiveLow();
+//		pixy.setSampleDataOnTrailingEdge();
+		pixy.setSampleDataOnLeadingEdge();
+//		pixy.setClockActiveLow();
+		pixy.setClockActiveHigh();
 	}
 
 	public void turnOnLamp() {

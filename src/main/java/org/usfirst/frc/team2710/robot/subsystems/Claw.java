@@ -24,7 +24,7 @@ public class Claw extends Subsystem {
 	
 	public Claw() {
 		super();
-		solenoidOn = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.CLAW_SOLENOID_ON);
+		/*solenoidOn = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.CLAW_SOLENOID_ON);
 		solenoidOff = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.CLAW_SOLENOID_OFF);
 
 		solenoidLLOn = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.PUSH_LL_SOLENOID_ON);
@@ -33,7 +33,7 @@ public class Claw extends Subsystem {
 		solenoidRROn = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.PUSH_RR_SOLENOID_ON);
 		
 		solenoidRROff = new Solenoid(RobotMap.CLAW_SOLENOID_NODE, RobotMap.PUSH_RR_SOLENOID_OFF);
-		
+		*/
 		victorLeft = new WPI_VictorSPX(RobotMap.CLAW_LEFT_VICTOR);
 		victorRight = new WPI_VictorSPX(RobotMap.CLAW_RIGHT_VICTOR);
 		victorLeft.setNeutralMode(NeutralMode.Brake);
@@ -55,13 +55,13 @@ public class Claw extends Subsystem {
 	}
 	
 	public void IntakeClaw() {
-		victorLeft.set(ControlMode.PercentOutput,-.5);
-		victorRight.set(ControlMode.PercentOutput,-0.5);
+		victorLeft.set(ControlMode.PercentOutput,.5);
+		victorRight.set(ControlMode.PercentOutput,0.5);
 	}
 	
 	public void OuttakeClaw() {
-		victorLeft.set(ControlMode.PercentOutput,0.5);
-		victorRight.set(ControlMode.PercentOutput,0.5);	
+		victorLeft.set(ControlMode.PercentOutput,-0.25);
+		victorRight.set(ControlMode.PercentOutput,-0.25);	
 	}
 	
 	public void StopClaw() {

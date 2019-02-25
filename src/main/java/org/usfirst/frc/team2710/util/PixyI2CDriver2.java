@@ -3,13 +3,12 @@ package org.usfirst.frc.team2710.util;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 
-public class PixyI2CDriver {
+public class PixyI2CDriver2 {
 	I2C pixy;
 	Port port = Port.kOnboard;
 
-
-	public PixyI2CDriver(int port2) {
-		pixy = new I2C(port, port2);
+	public PixyI2CDriver2() {
+		pixy = new I2C(port, 0x53);
 	}
 
 	private byte[] TURN_ON_LAMP = {

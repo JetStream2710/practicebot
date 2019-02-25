@@ -2,6 +2,8 @@ package org.usfirst.frc.team2710.robot;
 
 import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
+import org.usfirst.frc.team2710.util.PixyI2CDriver;
+import org.usfirst.frc.team2710.util.PixyI2CDriver2;
 import org.usfirst.frc.team2710.util.PixyLine;
 import org.usfirst.frc.team2710.util.PixyVision;
 
@@ -40,7 +42,7 @@ public class Robot extends TimedRobot {
 	
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-	private FollowLinePhase1 linePhase1;
+	private FollowLineMethod2 follow;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -61,9 +63,6 @@ public class Robot extends TimedRobot {
 
 
 //		CameraServer.getInstance().startAutomaticCapture();
-
-		//drivetrain = new Drivetrain();
-		
 //		auto = new RightRocketAuto();
 	}
 	
@@ -104,10 +103,17 @@ public class Robot extends TimedRobot {
 		//auto.start();
 		isAuto = true;	
 
+/*
+		follow = new FollowLineMethod2();
+		follow.start();
+		System.out.println("follow.start(); reached");
+*/
 		//followLineCmd = new FollowLine();
 
-		linePhase1 = new FollowLinePhase1();
-		linePhase1.start();
+		//linePhase1 = new FollowLinePhase1();
+		//linePhase1.start();
+//		FollowLine3 fl3 = new FollowLine3();
+//		fl3.start();
 
 		//tankDriveCmd = new TankDriveSeconds(1000, 0.6,0.4);
 		//tankDriveCmd.start();
@@ -179,6 +185,8 @@ public class Robot extends TimedRobot {
 		// this line or comment it out.
 		isAuto = false;
 		ahrs.zeroYaw();
+
+//		pixy1.turnOnLamp();
 	}
 
 	/**
