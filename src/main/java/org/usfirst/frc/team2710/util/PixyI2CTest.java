@@ -17,6 +17,6 @@ public class PixyI2CTest {
 	public void testpixy() {
 		//pixy.turnOnLamp()
 		//pixy.turnOffLamp();
-		pixy.lineTracking();
+		//pixy.lineTracking();
 	}
 }

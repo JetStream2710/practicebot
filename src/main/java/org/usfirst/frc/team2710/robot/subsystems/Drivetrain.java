@@ -26,13 +26,8 @@ public class Drivetrain extends Subsystem {
 	public WPI_TalonSRX frontLeftTalon = null;		
 	public WPI_TalonSRX rearLeftTalon = null;
 	
-<<<<<<< HEAD
-	private WPI_TalonSRX frontRightTalon = null;
-	private WPI_TalonSRX rearRightTalon = null;
-=======
 	public WPI_TalonSRX frontRightTalon = null;
 	public WPI_TalonSRX rearRightTalon = null;
->>>>>>> 7a8dd077b2ac4c1079ff6a13cecba529f35c2a38
 
 	private Encoder enc;
 	

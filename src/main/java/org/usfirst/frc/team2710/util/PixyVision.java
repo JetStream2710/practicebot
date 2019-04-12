@@ -1,10 +1,12 @@
 package org.usfirst.frc.team2710.util;
 
+import java.util.List;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PixyVision {
-    private static final boolean DEBUG = true;
-    private static final long POLL_FREQUENCY_MILLIS = 1 + (1000 / 60);
+    public static boolean DEBUG = true;
+    private static final long POLL_FREQUENCY_MILLIS = 1 + (1000 / 50);
 
     private PixyLine latestLine;
     private PixyBlock leftBlock;
@@ -14,6 +16,13 @@ public class PixyVision {
     private boolean turnOffLamp;
     private boolean trackLines;
     private boolean trackObjects;
+
+    private int badVisionCounter;
+
+    // signature number
+    // The number in this array should be the binary representation of all of the
+    // signatures we want to track. For example: 15 = 00001111 (in binary)
+    private int[] signatures = new int[] {15};
 
     private boolean isRunning;
     private PixyVisionThread thread;
@@ -45,10 +54,12 @@ public class PixyVision {
     }
 
     public synchronized void start() {
+        System.out.println("pixy start");
         if (thread == null) {
             thread = new PixyVisionThread();
             isRunning = true;
             thread.start();
+            System.out.println("starting pixy");
         }
     }
 
@@ -61,23 +72,12 @@ public class PixyVision {
     }
 
     class PixyVisionThread extends Thread {
-<<<<<<< HEAD
         private PixyI2CDriver driver = new PixyI2CDriver(0x53);
-        //private PixyI2CDriver driver2 = new PixyI2CDriver(0x53);
-
-
-        //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS1);
-        //private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
-      //  private PixyI2CDriver2 driver3 = new PixyI2CDriver2();
-
-=======
-        private PixyI2CDriver driver = new PixyI2CDriver(0x54);
-        private PixyI2CDriver driver2 = new PixyI2CDriver(0x53);
+//        private PixyI2CDriver driver2 = new PixyI2CDriver(0x53);
         //private PixySpiDriver driver = new PixySpiDriver(SPI.Port.kOnboardCS1);
         //private PixySpiDriver driver2 = new PixySpiDriver(SPI.Port.kOnboardCS1);
       //  private PixyI2CDriver2 driver3 = new PixyI2CDriver2();
     
->>>>>>> 7a8dd077b2ac4c1079ff6a13cecba529f35c2a38
         @Override
         public void run() {
             debug("running thread");
@@ -85,14 +85,13 @@ public class PixyVision {
             while (isRunning) {
                 if (turnOnLamp) {
                     driver.turnOnLamp();
-                    driver2.turnOnLamp();
                     turnOnLamp = false;
                 }
                 if (turnOffLamp) {
                     driver.turnOffLamp();
-                    driver2.turnOffLamp();
                     turnOffLamp = false;
                 }
+                /*
                 if (trackLines) {
                     PixyLine line = driver.lineTracking();
                     if (line != null && isValid(line)) {
@@ -100,10 +99,26 @@ public class PixyVision {
                         latestLine = line;
                     }
                 }
-                /*
+                */
                 if (trackObjects) {
-                    PixyBlock[] blocks = driver2.objectTracking();
-                    if (blocks != null && isValid(blocks)) {
+                    PixyBlock[] blocks = new PixyBlock[2];
+                    int blockIndex = 0;
+                    for (int sig : signatures) {
+                        //debug("Trying sig: "+ sig);
+                        List<PixyBlock> blockList = driver.objectTrackingForSig(sig);
+                        for (PixyBlock block : blockList) {
+                            //debug("Considering " + sig + ": " + block);
+                            // check to make sure block is valid
+                            if (blockIndex < 2 &&
+                                block.getHeight() > block.getWidth()) {
+                                    //debug("... added block");
+                                    blocks[blockIndex] = block;
+                                    blockIndex++;
+                            }
+                        }
+                    }
+                    if (blockIndex == 2){
+                        badVisionCounter = 0;
                         if (blocks[0].getCenterX() < blocks[1].getCenterX()) {
                             leftBlock = blocks[0];
                             rightBlock = blocks[1];
@@ -111,10 +126,11 @@ public class PixyVision {
                             leftBlock = blocks[1];
                             rightBlock = blocks[0];
                         }
-                        debug("found objects left: " + leftBlock + " right: " + rightBlock);
+                        //debug("found objects left: " + leftBlock + " right: " + rightBlock);
+                    } else{
+                        badVisionCounter ++;
                     }
                 }
-                */
 
                 try {
                     Thread.sleep(POLL_FREQUENCY_MILLIS);
@@ -134,8 +150,12 @@ public class PixyVision {
         return true;
     }
 
-    private boolean isValid(PixyBlock[] blocks) {
-        return blocks.length == 2 && blocks[0].getSignature() != 0 && blocks[1].getSignature() != 0;
+    private boolean isValid(PixyBlock[] blocks, int sig) {
+        return blocks.length == 2 && blocks[0].getSignature() == sig && blocks[1].getSignature() == sig;
+    }
+
+    public int getBadVisionCount(){
+        return badVisionCounter;
     }
 
     private void debug(String msg) {

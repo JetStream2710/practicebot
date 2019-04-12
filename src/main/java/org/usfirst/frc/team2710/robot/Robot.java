@@ -1,6 +1,5 @@
 package org.usfirst.frc.team2710.robot;
 
-import org.usfirst.frc.team2710.robot.subsystems.Claw;
 import org.usfirst.frc.team2710.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team2710.util.PixyI2CDriver;
 import org.usfirst.frc.team2710.util.PixyI2CDriver2;
@@ -30,10 +29,9 @@ import org.usfirst.frc.team2710.robot.commands.*;
 public class Robot extends TimedRobot {
 	Command auto;
 	public static Drivetrain drivetrain;
-	public static Claw claw;
 	public static OI oi;
 	public static AHRS ahrs = new AHRS(SPI.Port.kMXP);
-	public static PixyVision pixy = new PixyVision(true, true);
+	public static PixyVision pixy = new PixyVision(false, true);
 
 	public static long startingTime;
 	public static boolean isAuto;
@@ -50,12 +48,11 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		System.out.println("Robot init");
 		SmartDashboard.putString("Event Log: ", "Robot Init");
 		drivetrain = new Drivetrain();
-//		claw = new Claw();
 		oi = new OI();
 		limitSwitch = new DigitalInput(9);
-		pixy.start();
 		
 		
 		//chooser.addObject("My Auto", new MyAutoCommand());
@@ -76,7 +73,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
+		PixyVision.DEBUG = false;
 	}
 
 	@Override
@@ -97,11 +94,15 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		pixy.start();
 //		Telemetry.addEvent("Autonomous Init");
 //		SmartDashboard.putString("Event Log: ", "Autonomous Init");
 //		startingTime = System.currentTimeMillis();
 		//auto.start();
 		isAuto = true;	
+		PixyVision.DEBUG = true;
+		Command follow = new FollowObject();
+		follow.start();
 
 /*
 		follow = new FollowLineMethod2();
@@ -131,9 +132,6 @@ public class Robot extends TimedRobot {
 			m_autonomousCommand.start();
 		}
 		*/
-		
-		FollowLine3 fl = new FollowLine3();
-		fl.start();
 
 		//		drivetrain.turn(ahrs, 180);
 //		drivetrain.driveForward(startingTime, 1);
@@ -183,8 +181,7 @@ public class Robot extends TimedRobot {
 		ahrs.zeroYaw();
 
 //		pixy1.turnOnLamp();
-<<<<<<< HEAD
-=======
+pixy.start();
 
 		testMotor();
 	}
@@ -209,7 +206,6 @@ public class Robot extends TimedRobot {
 		drivetrain.frontLeftTalon.set(-0.2);
 		try { Thread.currentThread().sleep(500); } catch (InterruptedException e) { }
 		System.out.println("FRONT LEFT TALON inverted, expect 0.2 actual " + drivetrain.frontLeftTalon.get());
->>>>>>> 7a8dd077b2ac4c1079ff6a13cecba529f35c2a38
 	}
 
 	/**

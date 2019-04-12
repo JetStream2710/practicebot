@@ -1,4 +1,6 @@
 package org.usfirst.frc.team2710.util;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class PixyBlock {
 
@@ -10,37 +12,37 @@ public class PixyBlock {
 
     /** @return a number from 0 to 255 */
     public int getSignature() {
-        return byteToUint(bytes[6]);
+        return byteToUint(bytes[0]);
     }
 
     /** @return a number from 0 to 315 */
     public int getCenterX() {
-        return concatBytes(bytes[7], bytes[8]);
+        return concatBytes(bytes[2], bytes[3]);
     }
 
     /** @return a number from 0 to 207 */
     public int getCenterY() {
-        return byteToUint(bytes[9]);
+        return concatBytes(bytes[4], bytes[5]);
     }
 
     /** @return a number from 0 to 316 */
     public int getWidth() {
-        return concatBytes(bytes[10], bytes[11]);
+        return concatBytes(bytes[6], bytes[7]);
     }
 
     /** @return a number from 0 to 208 */
     public int getHeight() {
-        return concatBytes(bytes[12], bytes[13]);
+        return concatBytes(bytes[8], bytes[9]);
     }
 
     /** @return a number from 0 to 255 */
     public int getTrackingIndex() {
-        return byteToUint(bytes[16]);
+        return byteToUint(bytes[12]);
     }
 
     /** @return a number from 0 to 255 */
     public int getAgeInFrames() {
-        return byteToUint(bytes[17]);
+        return byteToUint(bytes[13]);
     }
 
     @Override
@@ -60,6 +62,8 @@ public class PixyBlock {
         sb.append(getTrackingIndex());
         sb.append(" age: ");
         sb.append(getAgeInFrames());
+        sb.append(" distance: ");
+        sb.append(getDistance());
         return sb.toString();
     }
 
@@ -67,7 +71,14 @@ public class PixyBlock {
         return (int) (b & 0xFF);
     }
     
-    public static int concatBytes(byte upper, byte lower) {
-		return (((int) (upper & 0xff)) << 8) | ((int) (lower & 0xff));
+    public static int concatBytes(byte lower, byte upper) {
+//        ByteBuffer bb = ByteBuffer.wrap(new byte[] {lower, upper});
+//        bb.order(ByteOrder.LITTLE_ENDIAN);
+//       return bb.getShort();
+		return (((short) (upper & 0xff)) << 8) | ((short) (lower & 0xff));
+    }
+
+    public double getDistance(){
+        return 1380 * Math.pow(getHeight(), -0.982);
     }
 }

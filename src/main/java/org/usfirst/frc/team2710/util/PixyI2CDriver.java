@@ -1,119 +1,78 @@
 package org.usfirst.frc.team2710.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.I2C.Port;
 
 public class PixyI2CDriver {
-	I2C pixy;
-	Port port = Port.kOnboard;
+//  private Logger logger = new Logger(PixyI2CDriver.class.getName());
+  private I2C pixy;
 
+  public PixyI2CDriver(int port) {
+    pixy = new I2C(I2C.Port.kOnboard, port);
+  }
 
-	public PixyI2CDriver(int port2) {
-		pixy = new I2C(port, port2);
-	}
+  public void turnOnLamp() {
+  //  logger.info("turnOnLamp send: " + PixyMessage.bytesToString(PixyMessage.TURN_ON_LAMP));
+    byte[] data = new byte[9];
+    pixy.transaction(PixyMessage.TURN_ON_LAMP, PixyMessage.TURN_ON_LAMP.length, data, data.length);
+  //  logger.info("turnOnLamp receive: " + PixyMessage.bytesToString(data));
+  }
 
-	private byte[] TURN_ON_LAMP = {
-		(byte) 174,
-		(byte) 193,
-		(byte) 22,
-		(byte) 2,
-		(byte) 1,
-		(byte) 1
-	};
+  public void turnOffLamp() {
+  //  logger.info("turnOffLamp send: " + PixyMessage.bytesToString(PixyMessage.TURN_OFF_LAMP));
+    byte[] data = new byte[9];
+    pixy.transaction(PixyMessage.TURN_OFF_LAMP, PixyMessage.TURN_OFF_LAMP.length, data, data.length);
+  //  logger.info("turnOffLamp receive: " + PixyMessage.bytesToString(data));
+  }
 
-	private byte[] TURN_OFF_LAMP = {
-		(byte) 174,
-		(byte) 193,
-		(byte) 22,
-		(byte) 2,
-		(byte) 0,
-		(byte) 0
-	};
+  /*
+  public PixyLine lineTracking(boolean isMirror) {
+  //  logger.info("lineTracking send: " + PixyMessage.bytesToString(PixyMessage.LINE_TRACKING));
+    byte[] data = new byte[14];
+    pixy.transaction(PixyMessage.LINE_TRACKING, PixyMessage.LINE_TRACKING.length, data, data.length);
+  //  logger.info("lineTracking receive: " + PixyMessage.bytesToString(data));
+    return new PixyLine(data, isMirror);
+  }
+  */
 
-	private byte[] LINE_TRACKING = {
-		(byte) 174,
-		(byte) 193,
-		(byte) 48,
-		(byte) 2,
-		(byte) 0,
-		(byte) 7
-	};
+  public PixyBlock[] objectTracking1() {
+  //  logger.info("objectTracking send: " + PixyMessage.bytesToString(PixyMessage.OBJECT_TRACKING));
+    //byte[] data = new byte[17];
+    byte[] data = new byte[34];
+    byte[] request = PixyMessage.getBlockRequest(1);
+    pixy.transaction(request, request.length, data, data.length);
+//pixy.transaction(PixyMessage.OBJECT_TRACKING_1, PixyMessage.OBJECT_TRACKING_1.length, data, data.length);
+  //  logger.info("objectTracking receive: " + PixyMessage.bytesToString(data));
+    // FIX THIS LINE
+    byte[] firstBlock = new byte[14];
+    byte[] secondBlock = new byte[14];
+    System.arraycopy(data, 6, firstBlock, 0, 14);
+    System.arraycopy(data, 20, secondBlock, 0, 14);
+    return new PixyBlock[] {new PixyBlock(firstBlock), new PixyBlock(secondBlock)};
+  }
 
-	public int convertUnsigned(byte b) {
-		return b & 0xFF;		
-	}
-
-	public void turnOnLamp() {
-		System.out.println("calling turnOnLamp");
-		try {
-			for (byte b : TURN_ON_LAMP) {
-				System.out.println((int) b + " :: " + convertUnsigned(b));
-			}
-			byte[] dataReceived = new byte[9];
-			pixy.transaction(TURN_ON_LAMP, TURN_ON_LAMP.length, dataReceived, dataReceived.length);
-			System.out.println("turnOnLamp data received");
-			for (byte b : dataReceived) {
-				System.out.println((int) b + " :: " + convertUnsigned(b));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void turnOffLamp() {
-		System.out.println("calling turnOffLamp");
-		try {
-			for (byte b : TURN_OFF_LAMP) {
-				System.out.println((int) b + " :: " + convertUnsigned(b));
-			}
-			byte[] dataReceived = new byte[9];
-			pixy.transaction(TURN_OFF_LAMP, TURN_OFF_LAMP.length, dataReceived, dataReceived.length);
-			System.out.println("turnOffLamp data received");
-			for (byte b : dataReceived) {
-				System.out.println((int) b + " :: " + convertUnsigned(b));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public PixyLine lineTracking() {
-//		System.out.println("calling lineTracking 2");
-		try {
-//			for (byte b : LINE_TRACKING) {
-//				System.out.println((int) b + " :: " + convertUnsigned(b));
-//			}
-			byte[] dataReceived = new byte[14];
-			pixy.transaction(LINE_TRACKING, LINE_TRACKING.length, dataReceived, dataReceived.length);
-//			System.out.println("lineTracking data received");
-/*
-			int i=0;
-			for (byte b : dataReceived) {
-				System.out.println(i+": "+(int) b + " :: " + convertUnsigned(b));
-				i++;
-			}
-			*/
-			return new PixyLine(dataReceived);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}	
-	/*
-    public PixyBlock[] objectTracking() {
-        debug("objectTracking send: " + bytesToString(OBJECT_TRACKING));
-        byte[] data = new byte[17];
-        //byte[] data = new byte[34];
-        pixy.transaction(OBJECT_TRACKING, data, 2);
-        debug("... objectTracking receive: " + bytesToString(data));
-        byte[] data2 = new byte[34];
-        pixy.read(false, data2, 2);
-        debug("... objectTracking receive2: " + bytesToString(data2));
-        return new PixyBlock[] {
-            new PixyBlock(data),
-            new PixyBlock(data2)
-        };
-	}
-	*/
+  private int numBlocks = 8;
+  public List<PixyBlock> objectTrackingForSig(int sig) {
+    //System.out.println("objectTrackingForSig called");
+    //  logger.info("objectTracking send: " + PixyMessage.bytesToString(PixyMessage.OBJECT_TRACKING));
+    //byte[] data = new byte[17];
+    byte[] data = new byte[6 + (14 * numBlocks)];
+    byte[] request = PixyMessage.getBlockRequest(sig);
+    pixy.transaction(request, request.length, data, data.length);
+    List<PixyBlock> blockList = new ArrayList<>();
+    for (int i = 0; i < numBlocks; i++) {
+      //System.out.println("found: " + i);
+      byte[] block = new byte[14];
+      //System.arraycopy(data, 6, block, 0, 14);
+      System.arraycopy(data, 6 + (i * 14), block, 0, 14);
+      PixyBlock pixyBlock = new PixyBlock(block);
+      if (pixyBlock.getSignature() >= 1 && pixyBlock.getSignature() <= 4) {
+        blockList.add(pixyBlock);
+      }
+    }
+    return blockList;
+  }
+  
 }
